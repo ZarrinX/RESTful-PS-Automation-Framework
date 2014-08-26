@@ -76,11 +76,15 @@ elseif($Env -eq "test")
     $environment = "test"
     $Data = "$Path\data\TestData.xml"
 }
-
 elseif($Env -eq "prod")
 {
     $environment = "prod"
     $Data = "$Path\data\ProdData.xml"
+}
+elseif($Env -eq $null)
+{
+    $environment = "test"
+    $Data = "$Path\data\TestData.xml"
 }
 else
 {
@@ -88,13 +92,13 @@ else
     Exit
 }
 
-
+#Build a list of tests from the tests directory (this should only contain valid test files, but if not the list will be limited to .ps1 files)
 $TestList = gci $Tests | ? {$_.Name.Contains(".ps1")}
 
-
+#Runs the tests and stores the returned XML into an array for building into a Junit report
 foreach($TestName in $TestList.Name)
 {
-    $TestResults += Invoke-Expression "$Tests\$TestName"
+    $TestResults += Invoke-Expression "$Tests\$TestName -TestData $Data"
     
 }
 
